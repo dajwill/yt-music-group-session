@@ -110,7 +110,7 @@ const AudioPlayer = ({ src, width }: IAudioPlayer) => {
     }
 
     return (
-        <Box position="fixed" bottom={0} width="100%" h="100px">
+        <Box position="fixed" bottom={0} width="100%" h="100px" zIndex="docked">
             <Slider
                 size="xs"
                 width="100%"
