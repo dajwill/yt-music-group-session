@@ -1,0 +1,80 @@
+import { Text, Image, Container, List, HStack, Stack, Icon, Box } from "@chakra-ui/react"
+import { MdExplicit, MdPlayArrow } from "react-icons/md"
+import { FaEllipsisVertical } from "react-icons/fa6";
+import { useSearch } from '@/queries';
+import useSearchValue from "@/hooks/useSearchValue";
+import {
+    MenuContent,
+    MenuItem,
+    MenuRoot,
+    MenuTrigger,
+  } from "@/components/ui/menu"
+
+const ListItemMenu = ({ videoId }: { videoId: string }) => {
+    const onClick = () => console.log(videoId)
+    return (
+        <MenuRoot positioning={{ placement: "bottom-start" }}>
+            <MenuTrigger asChild>
+                <Icon visibility="hidden" _groupHover={{ visibility: 'initial' }}>
+                    <FaEllipsisVertical />
+                </Icon>
+            </MenuTrigger>
+            <MenuContent>
+                <MenuItem value="new-txt-a" onClick={onClick}>
+                    Add to Queue
+                </MenuItem>
+            </MenuContent>
+        </MenuRoot>
+    )
+}
+
+
+const Search = () => {
+    const q = useSearchValue();
+    const { data } = useSearch({ q, filter: 'songs' })
+
+    return (
+        <Container pb="120px">
+            <List.Root gap="2" variant="plain" align="center" divideY="1px" gapY={0} cursor="pointer">
+                {data?.map(song => (
+                    <HStack as={List.Item} p={2} className="group">
+                        <Stack position="relative">
+                            <Image
+                                height="60px"
+                                src={song?.thumbnails?.[1]?.url}   
+                            />
+                            <Stack
+                                position="absolute"
+                                w="100%"
+                                h="100%"
+                                align="center"
+                                justify="center"
+                                visibility="hidden"
+                                _groupHover={{ visibility: 'initial' }}
+                            >
+                                <Box position="absolute" w="100%" h="100%" bgColor="blackAlpha.700" zIndex={1} />
+                                <Icon color="white" size="2xl" as={MdPlayArrow} zIndex={2} />
+                            </Stack>
+                        </Stack>
+                        <Stack alignItems="flex-start" flexGrow={1} gap={0}>
+                            <Text fontWeight="semibold">{song.title}</Text>
+                            <HStack gapX={1}>
+                                {song.isExplicit && (
+                                    <Icon>
+                                        <MdExplicit />
+                                    </Icon>
+                                )}
+                                <Text>{song.artists?.[0].name}</Text>
+                                <span>&middot;</span>
+                                <Text>{song.duration}</Text>
+                            </HStack>
+                        </Stack>
+                        <ListItemMenu videoId={song.videoId} />
+                    </HStack>
+                ))}
+            </List.Root>
+        </Container>
+    )
+}
+
+export default Search;
