@@ -1,52 +1,23 @@
-import { Text, Image, Container, List, HStack, Stack, Icon, Box } from "@chakra-ui/react"
-import { MdExplicit, MdPlayArrow } from "react-icons/md"
-import { FaEllipsisVertical } from "react-icons/fa6";
-import { useSearch } from '@/queries';
-import useSearchValue from "@/hooks/useSearchValue";
-import {
-    MenuContent,
-    MenuItem,
-    MenuRoot,
-    MenuTrigger,
-  } from "@/components/ui/menu"
-import useQueue from "@/hooks/useQueue";
-import { Song } from "@/types";
-import { QueueAction } from "@/state/Queue";
+import useQueue from '@/hooks/useQueue';
+import { QueueAction } from '@/state/Queue';
+import { Image, Box, Container, HStack, Icon, List, Stack, Text } from '@chakra-ui/react';
+import {  CiTrash } from 'react-icons/ci';
+import { MdExplicit, MdPlayArrow } from 'react-icons/md';
 
-const ListItemMenu = (song: Song) => {
-    const { dispatch } = useQueue();
-    const onClick = () => {
+const Queue = () => {
+    const {state, dispatch} = useQueue();
+    const { songs, currentUser } = state;
+    const removeSong = (videoId: number) => {
         dispatch({
-            type: QueueAction.addToQueue,
-            payload: song
+            type: QueueAction.removeSong,
+            payload: videoId
         })
     }
     return (
-        <MenuRoot positioning={{ placement: "bottom-start" }}>
-            <MenuTrigger asChild>
-                <Icon visibility="hidden" _groupHover={{ visibility: 'initial' }}>
-                    <FaEllipsisVertical />
-                </Icon>
-            </MenuTrigger>
-            <MenuContent>
-                <MenuItem value="new-txt-a" onClick={onClick}>
-                    Add to Queue
-                </MenuItem>
-            </MenuContent>
-        </MenuRoot>
-    )
-}
-
-
-const Search = () => {
-    const q = useSearchValue();
-    const { data } = useSearch({ q, filter: 'songs' })
-
-    return (
         <Container pb="120px">
             <List.Root gap="2" variant="plain" align="center" divideY="1px" gapY={0} cursor="pointer">
-                {data?.map(song => (
-                    <HStack as={List.Item} p={2} className="group" key={`search-result-${song.videoId}`}>
+                {songs?.map((song, index) => (
+                    <HStack as={List.Item} p={2} className="group" key={`queue-song-${song.videoId}`}>
                         <Stack position="relative">
                             <Image
                                 height="60px"
@@ -69,16 +40,16 @@ const Search = () => {
                             <Text fontWeight="semibold">{song.title}</Text>
                             <HStack gapX={1}>
                                 {song.isExplicit && (
-                                    <Icon>
-                                        <MdExplicit />
-                                    </Icon>
+                                    <Icon as={MdExplicit} />
                                 )}
                                 <Text>{song.artists?.[0].name}</Text>
                                 <span>&middot;</span>
                                 <Text>{song.duration}</Text>
                             </HStack>
                         </Stack>
-                        <ListItemMenu {...song} />
+                        {song.owner === currentUser && (
+                            <Icon as={CiTrash} onClick={() => removeSong(index)} visibility="hidden" _groupHover={{ visibility: 'initial' }} />
+                        )}
                     </HStack>
                 ))}
             </List.Root>
@@ -86,4 +57,4 @@ const Search = () => {
     )
 }
 
-export default Search;
+export default Queue

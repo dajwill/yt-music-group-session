@@ -1,5 +1,5 @@
 import { KeyboardEvent, useEffect, useRef } from 'react';
-import { Icon, Input, List, Stack, Text } from '@chakra-ui/react'
+import { Icon, Input } from '@chakra-ui/react'
 import { LuSearch } from 'react-icons/lu'
 import { InputGroup, type InputGroupProps } from '@/components/ui/input-group'
 import { Box, Container, HStack } from '@chakra-ui/react'
