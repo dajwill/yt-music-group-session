@@ -66,7 +66,7 @@ const AudioPlayer = ({ src, width }: IAudioPlayer) => {
             return void dispatch({ type: QueueAction.previous })
         }
         if (audioRef.current) audioRef.current.currentTime = 0
-    }, [dispatch]);
+    }, [dispatch, state.nowPlaying]);
 
     const onNext = useCallback(() => {
         dispatch({ type: QueueAction.next })
