@@ -11,8 +11,9 @@ import {
   } from "@/components/ui/menu"
 import useQueue from "@/hooks/useQueue";
 import { Song } from "@/types";
-import { QueueAction } from "@/state/Queue";
+import { QueueAction } from "@/state/queueStore";
 import PageContainer from "@/components/PageContainer";
+import { useCallback } from "react";
 
 const ListItemMenu = (song: Song) => {
     const { dispatch } = useQueue();
@@ -23,18 +24,20 @@ const ListItemMenu = (song: Song) => {
         })
     }
     return (
-        <MenuRoot positioning={{ placement: "bottom-start" }}>
-            <MenuTrigger asChild>
-                <Icon visibility="hidden" _groupHover={{ visibility: 'initial' }}>
-                    <FaEllipsisVertical />
-                </Icon>
-            </MenuTrigger>
-            <MenuContent>
-                <MenuItem value="new-txt-a" onClick={onClick}>
-                    Add to Queue
-                </MenuItem>
-            </MenuContent>
-        </MenuRoot>
+        <span onClick={e => e.stopPropagation()}>
+            <MenuRoot positioning={{ placement: "bottom-start" }}>
+                <MenuTrigger asChild>
+                    <Icon visibility="hidden" _groupHover={{ visibility: 'initial' }}>
+                        <FaEllipsisVertical />
+                    </Icon>
+                </MenuTrigger>
+                <MenuContent>
+                    <MenuItem value="new-txt-a" onClick={onClick}>
+                        Add to Queue
+                    </MenuItem>
+                </MenuContent>
+            </MenuRoot>
+        </span>
     )
 }
 
@@ -42,13 +45,21 @@ const ListItemMenu = (song: Song) => {
 const Search = () => {
     const q = useSearchValue();
     const { data } = useSearch({ q, filter: 'songs' })
+    const { dispatch } = useQueue();
+
+    const playSong = useCallback((song: Song) => {
+        dispatch({
+            type: QueueAction.playSong,
+            payload: song
+        })
+    }, [dispatch])
 
     return (
         <PageContainer>
             <Heading>Results</Heading>
             <List.Root gap="2" variant="plain" align="center" divideY="1px" gapY={0} cursor="pointer">
                 {data?.map(song => (
-                    <HStack as={List.Item} p={2} className="group" key={`search-result-${song.videoId}`}>
+                    <HStack as={List.Item} p={2} className="group" key={`search-result-${song.videoId}`} onClick={() => playSong(song)}>
                         <Stack position="relative">
                             <Image
                                 height="60px"

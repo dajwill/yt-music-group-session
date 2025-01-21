@@ -1,11 +1,12 @@
 import { Box, Grid, GridItem, Icon, Image, Presence, Stack, Text } from "@chakra-ui/react";
-import { useRef, useState, ChangeEvent, useCallback } from "react"
+import { useRef, useState, ChangeEvent, useCallback, MouseEventHandler, useEffect } from "react"
 import { Slider, SliderProps } from "@/components/ui/slider";
 import { MdSkipPrevious, MdSkipNext, MdPlayArrow, MdPause, MdExplicit } from "react-icons/md";
+import { LuShuffle } from "react-icons/lu";
 import { AiOutlineCaretUp, AiOutlineCaretDown } from "react-icons/ai";
 import formatTime from "@/utils/formatTime";
 import useQueue from "@/hooks/useQueue";
-import { QueueAction } from "@/state/Queue";
+import { QueueAction } from "@/state/queueStore";
 import { useColorModeValue } from "./ui/color-mode";
 import { useLocation } from 'wouter';
 import useToggleQueueDisplay from "@/hooks/useToggleQueueDisplay";
@@ -25,7 +26,7 @@ const Controls = ({ isPlaying, onTogglePlayState, onNext, onPrevious }: PlayCont
     <Stack direction="row" align="center" justify="center" maxW="min-content" onClick={e => e.stopPropagation()}>
         <Icon size={['lg','2xl']} onClick={onPrevious} hideBelow="md"><MdSkipPrevious /></Icon>
         <Icon fontSize={['2.5em', '3.5em']} onClick={onTogglePlayState}>{isPlaying ? <MdPause /> : <MdPlayArrow />}</Icon>
-        <Icon size={['lg','2xl']} onClick={onNext}><MdSkipNext /></Icon>
+        <Icon size={['lg','2xl']} onClick={onNext} color={onNext ? undefined : "dimgrey"}><MdSkipNext /></Icon>
     </Stack>
 );
 
@@ -33,6 +34,15 @@ const QueueDisplayIndicator = () => {
     const [location] = useLocation();
 
     return <Icon size="2xl" as={location === '/queue' ? AiOutlineCaretDown : AiOutlineCaretUp}  />
+}
+
+const ShuffleButton = () => {
+    const { dispatch } = useQueue()
+    const onClick: MouseEventHandler<SVGSVGElement> = (e) => {
+        e.stopPropagation()
+        dispatch({ type: QueueAction.shuffle })
+    }
+    return <Icon as={LuShuffle} size="2xl" onClick={onClick} />
 }
 
 const AudioPlayer = ({ src, width }: IAudioPlayer) => {
@@ -46,8 +56,16 @@ const AudioPlayer = ({ src, width }: IAudioPlayer) => {
     const [mediaTime, setMediaTime] = useState(0);
     const [bufferedAmount, setBufferedAmount] = useState(0);
 
+    useEffect(() => {
+        if (!audioRef.current) return;
+        audioRef.current.currentTime = 0;
+    }, [currentSong])
+
     const onPrevious = useCallback(() => {
-        dispatch({ type: QueueAction.previous })
+        if (state.nowPlaying) {
+            return void dispatch({ type: QueueAction.previous })
+        }
+        if (audioRef.current) audioRef.current.currentTime = 0
     }, [dispatch]);
 
     const onNext = useCallback(() => {
@@ -110,22 +128,24 @@ const AudioPlayer = ({ src, width }: IAudioPlayer) => {
                 h="100px"
                 onClick={toggleQueueDisplay}
             >
-                <Slider
-                    size="xs"
-                    width="100%"
-                    position="absolute"
-                    top={-1}
-                    colorPalette="red"
-                    variant="solid"
-                    value={[mediaTime]}
-                    max={duration}
-                    onChange={onScrubberChange}
-                    bufferedAmount={bufferedAmount}
-                />
+                <span onClick={e => e.stopPropagation()}>
+                    <Slider
+                        size="xs"
+                        width="100%"
+                        position="absolute"
+                        top={-1}
+                        colorPalette="red"
+                        variant="solid"
+                        value={[mediaTime]}
+                        max={duration}
+                        onChange={onScrubberChange}
+                        bufferedAmount={bufferedAmount}
+                    />
+                </span>
                 <Grid templateColumns={{ base: "repeat(5, 1fr)", md: "repeat(4, 1fr)"}} gap={[1,4]} h="100%" bg={bg} px={[4,8]}>
                     <GridItem colSpan={1} order={{base: 2, md: 0}}>
                         <Stack direction="row" align="center" gapX={4} h="100%" w="100%">
-                            <Controls isPlaying={isPlaying} onTogglePlayState={togglePlaying} onNext={(state.nowPlaying <= state.songs.length)  ? onNext : undefined} onPrevious={onPrevious} />
+                            <Controls isPlaying={isPlaying} onTogglePlayState={togglePlaying} onNext={(state.nowPlaying < state.songs.length - 1)  ? onNext : undefined} onPrevious={onPrevious} />
                             <Stack direction="row" justify="space-between" align="center" hideBelow="lg">
                                 <Text fontSize="xs">{formatTime(mediaTime)}</Text>
                                 /
@@ -139,8 +159,8 @@ const AudioPlayer = ({ src, width }: IAudioPlayer) => {
                                 height="60px"
                                 src={currentSong?.thumbnails[1].url}
                             />
-                            <Stack minW={['100px', '175px', '350px']} gap={0}>
-                                <Text fontWeight="semibold" fontSize="sm" truncate>{currentSong?.title} {currentSong?.title}</Text>
+                            <Stack minW={['100px', '175px', '350px']} justify="center" gap={0}>
+                                <Text fontWeight="semibold" fontSize="sm" truncate>{currentSong?.title}</Text>
                                 <Stack direction="row" gapX={1}>
                                     {currentSong?.isExplicit && (
                                         <Icon as={MdExplicit} />
@@ -153,7 +173,8 @@ const AudioPlayer = ({ src, width }: IAudioPlayer) => {
                         </Stack>
                     </GridItem>
                     <GridItem colSpan={[0, 1]} hideBelow="md">
-                        <Stack h="100%" w="100%" align="flex-end" justify="center">
+                        <Stack direction="row" h="100%" w="100%" justify="flex-end" align="center" gap={4}>
+                            <ShuffleButton />
                             <QueueDisplayIndicator />
                         </Stack>
                     </GridItem>

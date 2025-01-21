@@ -1,6 +1,6 @@
 import { QueueContext, QueueDispatchContext, QueuePatchesContext } from "./QueueContext"
 import { useMutativeReducer } from "use-mutative";
-import { INIT_STATE, queueReducer } from "./Queue";
+import { INIT_STATE, queueReducer } from "./queueStore";
 import { PropsWithChildren } from "react";
 
 

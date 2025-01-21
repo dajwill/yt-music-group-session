@@ -18,7 +18,9 @@ export enum QueueAction {
     clearQueue = 'CLEAR_QUEUE',
     next = 'NEXT_SONG',
     previous = 'PREVIOUS_SONG',
-    skipTo = 'SKIP_TO'
+    skipTo = 'SKIP_TO',
+    shuffle = 'shuffle',
+    playSong = 'PLAY_SONG'
 }
 
 export const INIT_STATE = {
@@ -44,6 +46,13 @@ export const clearQueue = create((draft: Draft<QueueState>) => {
     draft.songs = []
 })
 
+export const shuffleQueue = (queue: QueueSong[]) => {
+    for (let i = queue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [queue[i], queue[j]] = [queue[j], queue[i]];
+    }
+}
+
 export const reducer = (draft: Draft<QueueState>, action: { type: QueueAction, payload?: any }) => {
     switch (action.type) {
         case QueueAction.addToQueue:
@@ -54,7 +63,6 @@ export const reducer = (draft: Draft<QueueState>, action: { type: QueueAction, p
             })
             break;
         case QueueAction.removeSong:
-            // const songToRemove = draft.songs.findIndex(song => song.videoId === action.payload && song.owner === draft.currentUser)
             if (draft.songs[action.payload].owner === draft.currentUser ) draft.songs.splice(action.payload, 1)
             break;
         case QueueAction.clearQueue:
@@ -62,9 +70,7 @@ export const reducer = (draft: Draft<QueueState>, action: { type: QueueAction, p
             draft.songs = [];
             break;
         case QueueAction.next:
-            console.log('in the reducer')
             if (draft.songs.length && (draft.nowPlaying < draft.songs.length - 1)) {
-                console.log('conditional')
                 draft.nowPlaying++
             }
             break;
@@ -73,6 +79,16 @@ export const reducer = (draft: Draft<QueueState>, action: { type: QueueAction, p
             break;
         case QueueAction.skipTo:
             draft.nowPlaying = action.payload
+            break;
+        case QueueAction.shuffle:
+            const [currentSong] = draft.songs.splice(draft.nowPlaying, 1);
+            shuffleQueue(draft.songs)
+            draft.songs = [currentSong, ...draft.songs]
+            draft.nowPlaying = 0;
+            break;
+        case QueueAction.playSong:
+            draft.songs = [{...action.payload, owner: draft.currentUser}]
+            draft.nowPlaying = 0;
             break;
     }
 }

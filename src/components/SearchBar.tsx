@@ -51,7 +51,7 @@ export const SearchField = (props: Omit<InputGroupProps, 'children'>) => {
             }
             {...props}
         >
-            <Input placeholder="Search" variant="subtle" onKeyDown={onSubmit} ref={inputRef} />
+            <Input placeholder="Search songs" variant="subtle" onKeyDown={onSubmit} ref={inputRef} />
         </InputGroup>
     )
 }

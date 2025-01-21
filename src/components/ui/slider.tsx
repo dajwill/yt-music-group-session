@@ -21,9 +21,8 @@ const getBufferedProps = ({ bufferedAmount, value, max }: SliderProps) => {
 
 export const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
   function Slider(props, ref) {
-    const { marks: marksProp, label, showValue, ...rest } = props
+    const { marks: marksProp, label, showValue, bufferedAmount, ...rest } = props
     const value = props.defaultValue ?? props.value
-    console.log({value, marksProp})
 
     const marks = marksProp?.map((mark) => {
       if (typeof mark === "number") return { value: mark, label: undefined }
@@ -32,7 +31,7 @@ export const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
 
     const hasMarkLabel = !!marks?.some((mark) => mark.label)
 
-    const bufferProps = getBufferedProps(rest)
+    const bufferProps = getBufferedProps({ ...rest, bufferedAmount })
 
     return (
       <ChakraSlider.Root ref={ref} thumbAlignment="center" {...rest}>

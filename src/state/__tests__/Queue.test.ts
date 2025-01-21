@@ -1,4 +1,4 @@
-import { QueueAction, QueueState, queueReducer } from "../Queue"
+import { QueueAction, QueueState, queueReducer } from "../queueStore"
 
 const currentUser = 1
 const initialState = {
@@ -104,7 +104,7 @@ describe('queueReducer', () => {
   it('removes a song you added', () => {
     const nextState = queueReducer(initialState, {
       type: QueueAction.removeSong,
-      payload: "IxQHHqqtd0M"
+      payload: 0
     });
     expect(nextState).toStrictEqual({
       ...initialState,
@@ -115,7 +115,7 @@ describe('queueReducer', () => {
   it('does not remove a song you did not add', () => {
     const nextState = queueReducer(initialState, {
       type: QueueAction.removeSong,
-      payload: 'fahxSXoXlsA'
+      payload: 1
     })
     expect(nextState).toStrictEqual(initialState)
   });
@@ -125,5 +125,27 @@ describe('queueReducer', () => {
       type: QueueAction.clearQueue
     });
     expect(nextState.songs.length).toBe(0)
+  });
+
+  it('shuffles the queue', () => {
+    const nextState = queueReducer(
+      {
+        ...initialState,
+        songs: [...initialState.songs, { ...song, owner: 1 }],
+        nowPlaying: 2
+      },
+      { type: QueueAction.shuffle }
+    );
+    // expect(shuffleQueue).toHaveBeenCalled();
+    expect(nextState.songs[0]).toStrictEqual({ ...song, owner: 1 })
+  });
+
+  it('start a new queue', () => {
+    const nextState = queueReducer(initialState, {
+      type: QueueAction.playSong,
+      payload: song
+    });
+    expect(nextState.songs.length).toBe(1)
+    expect(nextState.songs[0]).toStrictEqual({...song, owner: currentUser})
   })
 });
