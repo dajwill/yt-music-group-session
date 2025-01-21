@@ -159,9 +159,9 @@ const AudioPlayer = ({ src, width }: IAudioPlayer) => {
                                 height="60px"
                                 src={currentSong?.thumbnails[1].url}
                             />
-                            <Stack minW={['100px', '175px', '350px']} justify="center" gap={0}>
+                            <Stack minW={['100px', '175px', '350px']} justify={['flex-start', "center"]} gap={0}>
                                 <Text fontWeight="semibold" fontSize="sm" truncate>{currentSong?.title}</Text>
-                                <Stack direction="row" gapX={1}>
+                                <Stack direction="row" gapX={1} alignItems="center">
                                     {currentSong?.isExplicit && (
                                         <Icon as={MdExplicit} />
                                     )}
