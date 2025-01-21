@@ -26,10 +26,10 @@ const useSearchValue = () => {
 export const SearchField = (props: Omit<InputGroupProps, 'children'>) => {
     const inputRef = useRef<HTMLInputElement>(null)
     const defaultValue = useSearchValue();
-    const [_, navigate] = useLocation();
+    const [location, navigate] = useLocation();
 
     useEffect(() => {
-        if (inputRef.current) {
+        if (inputRef.current && location === '/search') {
             inputRef.current.value = defaultValue ?? ''
         }
     }, [defaultValue])

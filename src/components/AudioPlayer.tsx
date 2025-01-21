@@ -7,7 +7,8 @@ import formatTime from "@/utils/formatTime";
 import useQueue from "@/hooks/useQueue";
 import { QueueAction } from "@/state/Queue";
 import { useColorModeValue } from "./ui/color-mode";
-import { useLocation, useSearch } from 'wouter';
+import { useLocation } from 'wouter';
+import useToggleQueueDisplay from "@/hooks/useToggleQueueDisplay";
 
 interface IAudioPlayer extends SliderProps {
     src: string
@@ -22,32 +23,24 @@ type PlayControl = {
 
 const Controls = ({ isPlaying, onTogglePlayState, onNext, onPrevious }: PlayControl) => (
     <Stack direction="row" align="center" justify="center" maxW="min-content">
-        <Icon size="2xl" onClick={onPrevious}><MdSkipPrevious /></Icon>
-        <Icon fontSize="3.5em" onClick={onTogglePlayState}>{isPlaying ? <MdPause /> : <MdPlayArrow />}</Icon>
-        <Icon size="2xl" onClick={onNext}><MdSkipNext /></Icon>
+        <Icon size={['lg','2xl']} onClick={onPrevious} hideBelow="md"><MdSkipPrevious /></Icon>
+        <Icon fontSize={['2.5em', '3.5em']} onClick={onTogglePlayState}>{isPlaying ? <MdPause /> : <MdPlayArrow />}</Icon>
+        <Icon size={['lg','2xl']} onClick={onNext}><MdSkipNext /></Icon>
     </Stack>
 );
 
 const QueueLink = () => {
-    const [location, navigate] = useLocation();
-    const searchParams = useSearch()
-    const getPrevPath = useCallback(() => {
-        return !!searchParams ? `${location}?${searchParams}` : location
-    }, [location, searchParams])
+    const [location] = useLocation();
+    const toggle = useToggleQueueDisplay()
 
-    return (
-        location === '/queue' ? (
-            <Icon size="2xl" as={AiOutlineCaretDown} onClick={() => navigate(window.history.state?.prevPath ?? '/')} />
-        ) : (
-            <Icon size="2xl" as={AiOutlineCaretUp} onClick={() => navigate('/queue', { state: { prevPath: getPrevPath() }})} />
-        )
-    )
+    return <Icon size="2xl" as={location === '/queue' ? AiOutlineCaretDown : AiOutlineCaretUp} onClick={() => toggle()} />
 }
 
 const AudioPlayer = ({ src, width }: IAudioPlayer) => {
     const { state, dispatch } = useQueue();
     const currentSong = state.songs?.[state.nowPlaying];
     const bg = useColorModeValue('whiteAlpha.950', 'blackAlpha.950');
+    const toggleQueueDisplay = useToggleQueueDisplay();
     const audioRef = useRef<HTMLAudioElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [duration, setDuration] = useState(0);
@@ -116,6 +109,7 @@ const AudioPlayer = ({ src, width }: IAudioPlayer) => {
             <Box
                 width="100%"
                 h="100px"
+                onClick={toggleQueueDisplay}
             >
                 <Slider
                     size="xs"
@@ -129,37 +123,37 @@ const AudioPlayer = ({ src, width }: IAudioPlayer) => {
                     onChange={onScrubberChange}
                     bufferedAmount={bufferedAmount}
                 />
-                <Grid templateColumns="repeat(4, 1fr)" gap="4" h="100%" bg={bg} px={8}>
-                    <GridItem as={Stack} colSpan={1}>
+                <Grid templateColumns={{ base: "repeat(5, 1fr)", md: "repeat(4, 1fr)"}} gap={[1,4]} h="100%" bg={bg} px={[2,8]}>
+                    <GridItem colSpan={1} order={{base: 2, md: 0}}>
                         <Stack direction="row" align="center" gapX={4} h="100%" w="100%">
                             <Controls isPlaying={isPlaying} onTogglePlayState={togglePlaying} onNext={(state.nowPlaying <= state.songs.length)  ? onNext : undefined} onPrevious={onPrevious} />
-                            <Stack direction="row" justify="space-between" align="center">
+                            <Stack direction="row" justify="space-between" align="center" hideBelow="lg">
                                 <Text fontSize="xs">{formatTime(mediaTime)}</Text>
                                 /
                                 <Text fontSize="xs">{formatTime(duration)}</Text>
                             </Stack>
                         </Stack>
                     </GridItem>
-                    <GridItem colSpan={2}>
+                    <GridItem colSpan={{base: 4, md: 2}}>
                         <Stack direction="row" h="100%" w="100%" align="center" justifyContent="center">
                             <Image
                                 height="60px"
                                 src={currentSong?.thumbnails[1].url}
                             />
-                            <Stack alignItems="flex-start" minW="350px" gap={0}>
-                                <Text fontWeight="semibold">{currentSong?.title}</Text>
+                            <Stack justify={['flex-start', undefined]} minW={['100px', '175px', '350px']} gap={0}>
+                                <Text fontWeight="semibold" fontSize="sm" truncate>{currentSong?.title} {currentSong?.title}</Text>
                                 <Stack direction="row" gapX={1}>
                                     {currentSong?.isExplicit && (
                                         <Icon as={MdExplicit} />
                                     )}
-                                    <Text>{currentSong?.artists?.[0].name}</Text>
+                                    <Text fontSize="sm" truncate>{currentSong?.artists?.[0].name}</Text>
                                     <span>&middot;</span>
                                     <Text>{currentSong?.duration}</Text>
                                 </Stack>
                             </Stack>
                         </Stack>
                     </GridItem>
-                    <GridItem colSpan={1}>
+                    <GridItem colSpan={[0, 1]} hideBelow="md">
                         <Stack h="100%" w="100%" align="flex-end" justify="center">
                             <QueueLink />
                         </Stack>
