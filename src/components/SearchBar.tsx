@@ -32,7 +32,7 @@ export const SearchField = (props: Omit<InputGroupProps, 'children'>) => {
         if (inputRef.current && location === '/search') {
             inputRef.current.value = defaultValue ?? ''
         }
-    }, [defaultValue])
+    }, [defaultValue, location])
 
     const onSubmit = (e: KeyboardEvent<HTMLInputElement>) => {
         const q = e.currentTarget.value;
