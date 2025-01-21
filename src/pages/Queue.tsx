@@ -1,6 +1,7 @@
+import PageContainer from '@/components/PageContainer';
 import useQueue from '@/hooks/useQueue';
 import { QueueAction } from '@/state/Queue';
-import { Image, Box, Container, HStack, Icon, List, Stack, Text } from '@chakra-ui/react';
+import { Image, Box, HStack, Icon, List, Stack, Text, Heading } from '@chakra-ui/react';
 import {  CiTrash } from 'react-icons/ci';
 import { MdExplicit, MdPlayArrow } from 'react-icons/md';
 
@@ -14,7 +15,8 @@ const Queue = () => {
         })
     }
     return (
-        <Container pb="120px">
+        <PageContainer>
+            <Heading>Queue</Heading>
             <List.Root gap="2" variant="plain" align="center" divideY="1px" gapY={0} cursor="pointer">
                 {songs?.map((song, index) => (
                     <HStack as={List.Item} p={2} className="group" key={`queue-song-${song.videoId}`}>
@@ -53,7 +55,7 @@ const Queue = () => {
                     </HStack>
                 ))}
             </List.Root>
-        </Container>
+        </PageContainer>
     )
 }
 

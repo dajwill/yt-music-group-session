@@ -7,7 +7,7 @@ import formatTime from "@/utils/formatTime";
 import useQueue from "@/hooks/useQueue";
 import { QueueAction } from "@/state/Queue";
 import { useColorModeValue } from "./ui/color-mode";
-import { useLocation } from 'wouter';
+import { useLocation, useSearch } from 'wouter';
 
 interface IAudioPlayer extends SliderProps {
     src: string
@@ -30,12 +30,16 @@ const Controls = ({ isPlaying, onTogglePlayState, onNext, onPrevious }: PlayCont
 
 const QueueLink = () => {
     const [location, navigate] = useLocation();
+    const searchParams = useSearch()
+    const getPrevPath = useCallback(() => {
+        return !!searchParams ? `${location}?${searchParams}` : location
+    }, [location, searchParams])
 
     return (
         location === '/queue' ? (
             <Icon size="2xl" as={AiOutlineCaretDown} onClick={() => navigate(window.history.state?.prevPath ?? '/')} />
         ) : (
-            <Icon size="2xl" as={AiOutlineCaretUp} onClick={() => navigate('/queue', { state: { prevPath: location }})} />
+            <Icon size="2xl" as={AiOutlineCaretUp} onClick={() => navigate('/queue', { state: { prevPath: getPrevPath() }})} />
         )
     )
 }

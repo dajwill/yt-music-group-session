@@ -10,7 +10,7 @@ export const SearchBar = () => {
         <Box borderBottomWidth="1px" bg="bg.panel" position="sticky" top="0" zIndex="docked">
             <Container py={{ base: '3.5', md: '4' }}>
                 <HStack justify="space-between">
-                    <SearchField hideBelow="md" />
+                    <SearchField />
                 </HStack>
             </Container>
         </Box>

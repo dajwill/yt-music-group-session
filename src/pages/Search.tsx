@@ -1,4 +1,4 @@
-import { Text, Image, Container, List, HStack, Stack, Icon, Box } from "@chakra-ui/react"
+import { Text, Image, List, HStack, Stack, Icon, Box, Heading } from "@chakra-ui/react"
 import { MdExplicit, MdPlayArrow } from "react-icons/md"
 import { FaEllipsisVertical } from "react-icons/fa6";
 import { useSearch } from '@/queries';
@@ -12,6 +12,7 @@ import {
 import useQueue from "@/hooks/useQueue";
 import { Song } from "@/types";
 import { QueueAction } from "@/state/Queue";
+import PageContainer from "@/components/PageContainer";
 
 const ListItemMenu = (song: Song) => {
     const { dispatch } = useQueue();
@@ -43,7 +44,8 @@ const Search = () => {
     const { data } = useSearch({ q, filter: 'songs' })
 
     return (
-        <Container pb="120px">
+        <PageContainer>
+            <Heading>Results</Heading>
             <List.Root gap="2" variant="plain" align="center" divideY="1px" gapY={0} cursor="pointer">
                 {data?.map(song => (
                     <HStack as={List.Item} p={2} className="group" key={`search-result-${song.videoId}`}>
@@ -82,7 +84,7 @@ const Search = () => {
                     </HStack>
                 ))}
             </List.Root>
-        </Container>
+        </PageContainer>
     )
 }
 
