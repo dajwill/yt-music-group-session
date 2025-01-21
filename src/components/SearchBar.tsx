@@ -1,5 +1,5 @@
 import { KeyboardEvent, useEffect, useRef } from 'react';
-import { Icon, Input, List, Stack, Text } from '@chakra-ui/react'
+import { Icon, Input } from '@chakra-ui/react'
 import { LuSearch } from 'react-icons/lu'
 import { InputGroup, type InputGroupProps } from '@/components/ui/input-group'
 import { Box, Container, HStack } from '@chakra-ui/react'
@@ -10,7 +10,7 @@ export const SearchBar = () => {
         <Box borderBottomWidth="1px" bg="bg.panel" position="sticky" top="0" zIndex="docked">
             <Container py={{ base: '3.5', md: '4' }}>
                 <HStack justify="space-between">
-                    <SearchField hideBelow="md" />
+                    <SearchField />
                 </HStack>
             </Container>
         </Box>
